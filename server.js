@@ -8,9 +8,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Look at your terminal to see your database link
-console.log("WHAT APP SEES:", process.env.MONGODB_URI);
-
 // Connect to MongoDB Database
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
@@ -24,8 +21,8 @@ mongoose.connect(process.env.MONGODB_URI)
 const authRoute = require('./routes/auth');
 const blogRoute = require('./routes/blogs');
 
-app.use('/api/auth', authRoute);   // Handles User Registration & Login
-app.use('/api/blogs', blogRoute);  // Handles Creating & Reading Blog Posts
+app.use('/api/auth', authRoute);
+app.use('/api/blogs', blogRoute);
 // ----------------------------------
 
 app.get('/', (req, res) => {
