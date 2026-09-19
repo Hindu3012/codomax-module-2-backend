@@ -56,4 +56,56 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// 4. UPDATE A BLOG POST
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedPost = await Blog.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({
+        error: "Blog post not found!"
+      });
+    }
+
+    res.status(200).json({
+      message: "Blog post updated successfully!",
+      post: updatedPost
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: error.message
+    });
+  }
+});
+
+// 5. DELETE A BLOG POST
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedPost = await Blog.findByIdAndDelete(
+      req.params.id
+    );
+
+    if (!deletedPost) {
+      return res.status(404).json({
+        error: "Blog post not found!"
+      });
+    }
+
+    res.status(200).json({
+      message: "Blog post deleted successfully!",
+      post: deletedPost
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
