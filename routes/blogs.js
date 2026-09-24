@@ -1,15 +1,17 @@
 const router = require('express').Router();
 const Blog = require('../models/Blog');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// 1. CREATE A NEW BLOG POST
-router.post('/create', async (req, res) => {
+// 1. CREATE A NEW BLOG POST - PRIVATE
+router.post('/create', authMiddleware, async (req, res) => {
   try {
-    const { title, content, username } = req.body;
+    const { title, content } = req.body;
 
     const newPost = new Blog({
       title,
       content,
-      username
+      username: req.user.username,
+      userId: req.user.userId
     });
 
     const savedPost = await newPost.save();
@@ -20,26 +22,35 @@ router.post('/create', async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      error: error.message
+    });
   }
 });
 
-// 2. GET ALL BLOG POSTS
-router.get('/', async (req, res) => {
+// 2. GET ALL BLOG POSTS - PRIVATE
+router.get('/', authMiddleware, async (req, res) => {
   try {
-    const posts = await Blog.find();
+    const posts = await Blog.find({
+      userId: req.user.userId
+    });
 
     res.status(200).json(posts);
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      error: error.message
+    });
   }
 });
 
-// 3. GET ONE BLOG POST BY ID
-router.get('/:id', async (req, res) => {
+// 3. GET ONE BLOG POST BY ID - PRIVATE
+router.get('/:id', authMiddleware, async (req, res) => {
   try {
-    const post = await Blog.findById(req.params.id);
+    const post = await Blog.findOne({
+      _id: req.params.id,
+      userId: req.user.userId
+    });
 
     if (!post) {
       return res.status(404).json({
@@ -56,11 +67,14 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// 4. UPDATE A BLOG POST
-router.put('/:id', async (req, res) => {
+// 4. UPDATE A BLOG POST - PRIVATE
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const updatedPost = await Blog.findByIdAndUpdate(
-      req.params.id,
+    const updatedPost = await Blog.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId: req.user.userId
+      },
       req.body,
       { new: true }
     );
@@ -83,12 +97,13 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// 5. DELETE A BLOG POST
-router.delete('/:id', async (req, res) => {
+// 5. DELETE A BLOG POST - PRIVATE
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
-    const deletedPost = await Blog.findByIdAndDelete(
-      req.params.id
-    );
+    const deletedPost = await Blog.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.userId
+    });
 
     if (!deletedPost) {
       return res.status(404).json({

@@ -5,14 +5,23 @@ const BlogSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+
   content: {
     type: String,
     required: true
   },
+
   username: {
     type: String,
     required: true
+  },
+
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('Blog', BlogSchema);
